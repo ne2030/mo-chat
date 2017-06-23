@@ -1,0 +1,21 @@
+{
+    "rules": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+    },
+    "users": {
+        "$user_uid": {
+            ".read": "auth.uid == $user_uid",
+            ".write": "auth.uid == $user_uid",
+            "inGroups": {
+                ".validate": "root.child('groups/' + data.key + '/users' + auth.uid).val()"
+            }
+        }
+    },
+    "groups": {
+        "$group_id": {
+            ".read": "root.child('users/' + auth.uid + '/inGroups' + $group_id).exists()",
+            ".write": "root.child('users/' + auth.uid + '/inGroups' + $group_id).exists()"
+        }
+    }
+}

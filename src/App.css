@@ -1,0 +1,83 @@
+.App {
+  height: 100vh;
+}
+
+.mainContent {
+    height: 100%;
+    text-align: center;
+}
+
+.chatList {
+    height: 70vh;
+    overflow-y: scroll;
+    padding: 0 1rem 1rem 1rem;
+}
+
+.chat .date {
+    display: inline-block;
+    float: none;
+    font-weight: 400;
+    font-size: .85714286em;
+    font-style: normal;
+    margin: 0 0 0 .5em;
+    padding: 0;
+    color: grey;
+    color: rgba(0,0,0,.4);
+}
+
+.chatContainer.segment {
+    padding: 0;
+}
+
+.chatContainer .header {
+    font-family: Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: black;
+    color: rgba(0,0,0,.87);
+    padding: 0.7rem 1rem;
+    vertical-align: middle;
+    width: 100%;
+    display: inline-block;
+}
+
+.chatContainer .header span {
+    vertical-align: middle;
+}
+
+.chatContainer .input {
+    width: 100%;
+}
+
+.ui.modal>.content {
+    margin: 0;
+    border: 0;
+}
+
+.chatContent.segment {
+    display: inline-block;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+}
+
+.chatUser {
+    display: block;
+    font-family: Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;
+    font-weight: 700;
+    color: black;
+    color: rgba(0,0,0,.87);
+}
+
+.icon+.content {
+    letter-spacing: 0.5px;
+}
+
+.modal .description .loginInput {
+    margin-right: 1rem;
+    width: 40%;
+}
+
+.loginModal.modal .input {
+    margin-bottom: 0.7rem;
+}
