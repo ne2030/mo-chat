@@ -20,16 +20,14 @@ const Chat = ({chat, chatId, isMine}) => (
                     {chat.user}
                 </div>
                 <div>
-                    <div className="date">
-                        {chat.timestamp}
-                    </div>
                     <Segment className='chatContent'>
                         {chat.message}
                     </Segment>
+                    <div className="date">
+                        {chat.timestamp}
+                    </div>
                 </div>
-
             </div>
-
         )}
         </div>
     </div>

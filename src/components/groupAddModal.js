@@ -60,9 +60,6 @@ class GroupAddModal extends Component {
                 <Modal.Content>
                     <Input placeholder="채팅방 이름" fluid={true} onChange={this.handleChange} iconPosition='left' icon='users' value={this.state.name}/>
                     <Dropdown placeholder='이름 검색' fluid multiple selection options={this.state.userList} onChange={this.handleChange} value={this.state.inviteList}/>
-                    <div className="btnGroup">
-
-                    </div>
                 </Modal.Content>
                 <Modal.Actions>
                     <Button onClick={this.toggleModal} color='red' inverted>

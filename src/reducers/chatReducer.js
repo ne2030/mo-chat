@@ -4,7 +4,7 @@ import {
   GOT_USER, GOT_NEW_CHAT, ALERT_ERROR,
   REQUEST_LOGIN, RECIEVE_LOGIN, LOGIN_ERROR,
   INIT_CHAT, INIT_CHAT_DATA, UNREAD_COUNT, SET_LAST_SEQ,
-  PREPARE_CHAT_CREATION, END_CHAT_CREATION, GROUP_ADDED
+  PREPARE_CHAT_CREATION, END_CHAT_CREATION, GROUP_ADDED, GOT_INVITES
 } from '../actions/actionTypes.js';
 
 const initialState = {
@@ -14,7 +14,8 @@ const initialState = {
         uid: '',
         name: 'guest',
         inGroups: {},
-        invites: ''
+        invites: '',
+        recieveInvite: false
     },
     chat: {
         onCreate: false
@@ -99,7 +100,8 @@ const user = (state = initialState.user, action) => {
         case GOT_INVITES:
             return {
                 ...state,
-                invites: action.gids
+                invites: action.gids,
+                recieveInvite: true
             }
         default:
             return state;

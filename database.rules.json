@@ -44,7 +44,7 @@
                     ".write": "true"
                 },
               	".read": "auth.uid == $invite_uid",
-                ".write": "false"
+                ".write": "auth.uid == $invite_uid"
 			}
         }
     }

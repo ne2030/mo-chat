@@ -107,9 +107,8 @@ const gotInvites = (gids) => ({
 export const getUser = (userConn, uid) => (dispatch, getState) => {
     // invite check
     firebase.database().ref(`invites/${uid}`).on('value', data => {
-        if(!data.val) return;
-        let gids = Object.entries(data.val());
-        dispatch(gotInvites())
+        let gids = data.val() ? Object.values(data.val()) : '';
+        dispatch(gotInvites(gids));
     })
     // user snapshot
     return userConn.once('value')
@@ -151,7 +150,6 @@ export const getUser = (userConn, uid) => (dispatch, getState) => {
 };
 
 export const login = ({id, password}) => dispatch => {
-    let [id, password] = ['erguono@naver.com', 'rudgnstls2'];
     dispatch(requestLogin());
     return firebase.auth().signInWithEmailAndPassword(id, password)
         .then(({uid}) => {
@@ -193,7 +191,11 @@ export const createChatRoom = (inviteFriends, name) => (dispatch, getState) => {
             // 초대된 친구들에게 invite 전송
             const gid = result.path.o[1];
             inviteFriends.forEach(uid => {
-                firebase.database().ref(`invites/${uid}`).push(gid);
+                firebase.database().ref(`invites/${uid}`).push({
+                    gid,
+                    name,
+                    user: user.name
+                });
             });
             // 자신의 inGroups 에 그룹 추가
             let initialState = {
@@ -223,8 +225,35 @@ export const createChatRoom = (inviteFriends, name) => (dispatch, getState) => {
                     let unreadCount = last.seq - initialState.lastCheck;
                     dispatch(setUnreadCount(gid, unreadCount));
                     dispatch(gotNewChat(last, chatId, gid));
-                })
+                });
             });
             dispatch(endChatCreation())
         });
+}
+
+export const recieveInvite = (invites) => (dispatch, getState) => {
+    const user = getState().user;
+
+    for(let gid in invites) {
+        if(!invites[gid].value) continue;
+        firebase.database().ref(`groups/${gid}/users/${user.uid}`).set(user.name)
+            .then(() => {
+                let initialState = {
+                    lastCheck: 0,
+                    name: invites[gid].name
+                };
+                firebase.database().ref(`users/${user.uid}/inGroups/${gid}`).set(initialState);
+                dispatch(groupAdded(gid, initialState));
+                firebase.database().ref(`chats/${gid}`).limitToLast(1).on('value', data => {
+                    let chatId = Object.keys(data.val())[0]
+                    let last = data.val()[chatId];
+                    // last seq 기록하는 거 제일 먼저
+                    dispatch(setLastSeq(last.seq, gid));
+                    let unreadCount = last.seq - initialState.lastCheck;
+                    dispatch(setUnreadCount(gid, unreadCount));
+                    dispatch(gotNewChat(last, chatId, gid));
+                });
+                firebase.database().ref(`invites/${user.uid}`).remove();
+            });
+    }
 }

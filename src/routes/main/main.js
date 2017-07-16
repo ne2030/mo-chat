@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import ChatContainer from '../../components/chatContainer.js';
 import AddGroupModal from '../../components/groupAddModal.js';
+import InvitesModal from '../../components/invitesModal.js';
 import { Sidebar, Segment, Button, Menu, Image, Icon, Message } from 'semantic-ui-react';
 import './main.css';
 
@@ -100,6 +101,7 @@ class Main extends Component {
                     {this.spreadGroupList(inGroups)}
                 </Sidebar>
                 <Sidebar.Pusher>
+                    { this.props.user.recieveInvite && this.props.user.invites.length ? <InvitesModal/> : ''}
                     <Segment basic>
                         <Button className={sidebarOn ? 'hide' : ''} circular onClick={this.toggleSidebar} icon='setting'></Button>
                         {this.showChatRooms(chatRooms)}

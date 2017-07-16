@@ -34,7 +34,7 @@ class ChatContainer extends Component {
     }
 
     handleSubmit = () => {
-        if(!this.props.inGroup.lastSeq) {
+        if(typeof this.props.inGroup.lastSeq !== 'number') {
             setTimeout(this.handleSubmit, 100);
             return;
         }
