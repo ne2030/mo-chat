@@ -1,10 +1,18 @@
-import {Icon, Feed, Segment, List, Divider, Input, Button} from 'semantic-ui-react'
+import {Icon, Segment, List, Divider, Input, Button} from 'semantic-ui-react'
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import {sendChat, gotNewChat, initializeChat} from '../actions/actionCreator.js';
+import {sendChat, gotNewChat} from '../actions/actionCreator.js';
+import Chat from './chat.js';
+import firebase from '../config.js';
+import {enterSubmit} from '../util.js';
 
 class ChatContainer extends Component {
+    constructor() {
+        super();
+        this.enterSubmit = enterSubmit.bind(this);
+    }
+
     state = {content: '', lastIndex: 0}
 
     handleChange = (e, data) => {
@@ -17,35 +25,33 @@ class ChatContainer extends Component {
         let chats = this.props.groups[gid].chats;
         let chatComponents = [];
 
-        for(let key in chats) {
-            let chat = chats[key];
-            chatComponents.push((<div key={key} className="chat item">
-                <div className='chatUser'>
-                    <Icon name='star'/> {chat.user}
-                </div>
-                <Segment className='chatContent'>
-                    {chat.message}
-                </Segment>
-                <div className="date">
-                    {chat.timestamp}
-                </div>
-            </div>));
+        for(let chatId in chats) {
+            let chat = chats[chatId];
+            let isMine = chat.user === this.props.user.name;
+            chatComponents.push(<Chat chat={chat} key={chatId} chatId={chatId} isMine={isMine}/>)
         }
         return chatComponents;
     }
 
-    handleSubmit = (e) => {
-        if(e && e.keyCode == 13 && this.state.content !== '') {
-            this.chatDB = this.props.firebase.database().ref(`chats/${this.props.inGroup.gid}`);
+    handleSubmit = () => {
+        if(!this.props.inGroup.lastSeq) {
+            setTimeout(this.handleSubmit, 100);
+            return;
+        }
+
+        if(this.state.content !== '') {
+            this.chatDB = firebase.database().ref(`chats/${this.props.gid}`);
             let time = new Date();
             let timestamp = `${time.getFullYear()}-${time.getMonth() + 1}-${time.getDate()}`;
-            this.chatDB.push({
+            console.log(this.props.inGroup.lastSeq);
+            let newChat = {
                 uid: this.props.user.uid,
                 user: this.props.user.name,
                 timestamp,
                 seq: this.props.inGroup.lastSeq + 1,
                 message: this.state.content
-            });
+            };
+            this.chatDB.push(newChat);
             this.setState({
                 content: ''
             })
@@ -57,14 +63,15 @@ class ChatContainer extends Component {
     componentDidUpdate = () => { this.refs.chatList.scrollTop = this.refs.chatList.scrollHeight; }
 
     render() {
-        const {name, gid} = this.props.inGroup;
+        const [name, gid] = [this.props.inGroup.name, this.props.gid];
         return (
             <Segment className='chatContainer'>
                 <div className="header">
                     <span>
                         {name}
                     </span>
-                    <Button floated="right" size="mini" color="red" onClick={() => this.props.closeChat({name, gid})} inverted>
+                    <Button floated="right" size="mini" color="red" inverted
+                        onClick={() => this.props.closeChat(name, gid)}>
                         닫기
                     </Button>
                 </div>
@@ -74,7 +81,12 @@ class ChatContainer extends Component {
                         { this.listingChat(gid)}
                     </List>
                 </div>
-                <Input icon='idea' iconPosition='left' placeholder="type here..." onKeyDown={this.handleSubmit} onChange={this.handleChange} value={this.state.content} />
+                <Input icon='idea' iconPosition='left' placeholder="type here..."
+                    label={<Button onClick={this.handleSubmit} color="teal"> 전송 </Button>}
+                    labelPosition="right"
+                    onKeyDown={this.enterSubmit}
+                    onChange={this.handleChange}
+                    value={this.state.content} />
             </Segment>
         )
     }
@@ -86,5 +98,4 @@ ChatContainer.PropTypes = {
 };
 
 const mapStateToProps = (state) => ({user: state.user, groups: state.chat, error: state.error});
-// export default ChatContainer;
 export default connect(mapStateToProps)(ChatContainer);

@@ -1,7 +1,10 @@
 import { combineReducers } from 'redux';
 
 import {
-  GOT_USER, GOT_NEW_CHAT, ALERT_ERROR, REQUEST_LOGIN, RECIEVE_LOGIN, LOGIN_ERROR, INITIALIZE_CHAT, UNREAD_COUNT, SET_LAST_SEQ
+  GOT_USER, GOT_NEW_CHAT, ALERT_ERROR,
+  REQUEST_LOGIN, RECIEVE_LOGIN, LOGIN_ERROR,
+  INIT_CHAT, INIT_CHAT_DATA, UNREAD_COUNT, SET_LAST_SEQ,
+  PREPARE_CHAT_CREATION, END_CHAT_CREATION, GROUP_ADDED
 } from '../actions/actionTypes.js';
 
 const initialState = {
@@ -10,9 +13,12 @@ const initialState = {
     user: {
         uid: '',
         name: 'guest',
-        inGroups: []
+        inGroups: {},
+        invites: ''
     },
-    chat: {},
+    chat: {
+        onCreate: false
+    },
     friends: {
         list: []
     }
@@ -65,20 +71,35 @@ const user = (state = initialState.user, action) => {
                 uid: action.uid
             };
         case UNREAD_COUNT:
-            inGroups = state.inGroups.map(inGroup =>
-                inGroup.gid == action.gid ? {...inGroup, unreadCount: action.unreadCount} : inGroup
-            );
+            return {
+                ...state,
+                inGroups: {
+                    ...state.inGroups,
+                    [action.gid]: {...state.inGroups[action.gid], unreadCount: action.unreadCount}
+                }
+
+            }
+        case SET_LAST_SEQ:
+            inGroups = {
+                ...state.inGroups,
+                [action.gid]: { ...state.inGroups[action.gid], lastSeq: action.lastSeq }
+            }
             return {
                 ...state,
                 inGroups
             }
-        case SET_LAST_SEQ:
-            inGroups = state.inGroups.map(inGroup =>
-                inGroup.gid == action.gid ? {...inGroup, lastSeq: action.lastSeq} : inGroup
-            );
+        case GROUP_ADDED:
             return {
                 ...state,
-                inGroups
+                inGroups: {
+                    ...state.inGroups,
+                    [action.gid]: action.group
+                }
+            }
+        case GOT_INVITES:
+            return {
+                ...state,
+                invites: action.gids
             }
         default:
             return state;
@@ -86,14 +107,24 @@ const user = (state = initialState.user, action) => {
 };
 
 const chat = (state = initialState.chat, action) => {
+    let group;
     switch (action.type) {
-        case INITIALIZE_CHAT:
+        case INIT_CHAT:
             return {
                 ...state,
                 [action.gid]: action.group
             };
+        case INIT_CHAT_DATA:
+            group = {...state[action.gid]};
+            return {
+                ...state,
+                [action.gid]: {
+                    ...group,
+                    chats: action.chats
+                }
+            };
         case GOT_NEW_CHAT:
-            let group = {...state[action.gid]};
+            group = {...state[action.gid]};
             return {
                 ...state,
                 [action.gid]: {
@@ -103,6 +134,16 @@ const chat = (state = initialState.chat, action) => {
                         [action.chatId]: action.message
                     },
                 }
+            }
+        case PREPARE_CHAT_CREATION:
+            return {
+                ...state,
+                onCreate: true
+            }
+        case END_CHAT_CREATION:
+            return {
+                ...state,
+                onCreate: false
             }
         default:
             return state;

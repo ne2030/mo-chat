@@ -1,21 +1,51 @@
 {
     "rules": {
-        ".read": "auth != null",
-        ".write": "auth != null"
-    },
-    "users": {
-        "$user_uid": {
-            ".read": "auth.uid == $user_uid",
-            ".write": "auth.uid == $user_uid",
-            "inGroups": {
-                ".validate": "root.child('groups/' + data.key + '/users' + auth.uid).val()"
+        "users": {
+          	"list": {
+              ".read": "true",
+              ".write": "false",
+              "$uid": {
+                ".write": "true",
+                ".validate": "auth.uid == $uid"
+              }
+            },
+            "$user_uid": {
+                ".read": "auth.uid == $user_uid",
+                ".write": "auth.uid == $user_uid",
+                "inGroups": {
+                    "$group_id": {
+                        ".validate": "root.child('groups/' + $group_id + '/users/' + auth.uid).exists()"
+                    }
+                }
             }
-        }
-    },
-    "groups": {
-        "$group_id": {
-            ".read": "root.child('users/' + auth.uid + '/inGroups' + $group_id).exists()",
-            ".write": "root.child('users/' + auth.uid + '/inGroups' + $group_id).exists()"
+        },
+        "groups": {
+            ".read": "false",
+            ".write": "true",
+            "$group_id": {
+                ".read": "true",
+                ".write": "true"
+            }
+        },
+        "chats": {
+            ".read": "false",
+            ".write": "true",
+            "$group_id": {
+                ".read": "true",
+                ".write": "true"
+            }
+        },
+        "invites": {
+          	".read": "false",
+            ".write": "false",
+            "$invite_uid": {
+              "$temp_id": {
+                  	".read": "true",
+                    ".write": "true"
+                },
+              	".read": "auth.uid == $invite_uid",
+                ".write": "false"
+			}
         }
     }
 }
