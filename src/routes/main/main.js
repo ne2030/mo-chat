@@ -58,21 +58,14 @@ class Main extends Component {
     }
 
     showChatRooms = chatRooms => {
-        return chatRooms.list.length ?
-            (<Segment.Group horizontal>
+        if(chatRooms.list.length) {
+            return (<Segment.Group horizontal>
                 {chatRooms.components.map(({inGroup, gid, chats}) => (
                     <ChatContainer closeChat={this.toggleChatGroup} key={gid} gid={gid} inGroup={inGroup}/>
                 ))}
-            </Segment.Group>) :
-            (
-                <Message icon>
-                    <Icon name='circle notched' loading />
-                    <Message.Content>
-                        <Message.Header>Open Your Chat!</Message.Header>
-                        Toggle setting-icon at the left top of this page.
-                    </Message.Content>
-                </Message>
-            )
+            </Segment.Group>)
+        }
+        return '';
     }
 
     spreadGroupList = function(inGroups) {
